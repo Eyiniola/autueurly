@@ -16,7 +16,8 @@ Google & Email Authentication: Secure and easy ways for users to sign up and log
 This section showcases the visual design and user experience of the Auteurly application.
 https://www.figma.com/design/JwrBQuJBnsmzNojcn71QHZ/Auteurly?node-id=0-1&t=q53wMLrTa4JoVCOb-1
 
-
+Github Link
+https://github.com/Eyiniola/autueurly.git
 
 🛠️ Tech Stack
 Front-end: Flutter (Cross-platform for iOS, Android & Web)
