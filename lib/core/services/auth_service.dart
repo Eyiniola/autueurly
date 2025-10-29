@@ -1,11 +1,15 @@
+import 'package:auteurly/core/services/presence_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import './firstore_service.dart';
+import 'package:auteurly/core/services/notification_service.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirestoreService _firestoreService = FirestoreService();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final PresenceService _presenceService = PresenceService();
+  final NotificationService _notificationService = NotificationService();
 
   Stream<User?> get user {
     return _firebaseAuth.authStateChanges();
@@ -13,6 +17,7 @@ class AuthService {
 
   // Sign in with Google
   Future<User?> signInWithGoogle() async {
+    _presenceService.connect();
     // REMOVED try...catch to let errors bubble up to the UI
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
     if (googleUser == null) {
@@ -36,6 +41,9 @@ class AuthService {
         userCredential.user!.displayName!,
       );
     }
+    if (userCredential.user != null) {
+      await _notificationService.initialize(); // <-- ADD THIS
+    }
     return userCredential.user;
   }
 
@@ -57,6 +65,7 @@ class AuthService {
         email,
         fullName,
       );
+      _presenceService.connect();
     }
     return credential.user;
   }
@@ -71,11 +80,15 @@ class AuthService {
       email: email,
       password: password,
     );
+    if (credential.user != null) {
+      await _notificationService.initialize(); // <-- ADD THIS
+    }
     return credential.user;
   }
 
   // Sign Out
   Future<void> signOut() async {
+    _presenceService.disconnect();
     await _googleSignIn.signOut();
     await _firebaseAuth.signOut();
   }

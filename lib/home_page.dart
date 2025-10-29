@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import './features/components/professional_card.dart';
-import './features/components/project_card.dart';
+import 'package:auteurly/features/projects/create_project_page.dart'; // Import your create page
+import 'home_content.dart'; // Import the new content widget
+import 'package:auteurly/features/search/search_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,72 +11,57 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  void _goToHome() {
+    setState(() {
+      _selectedIndex = 0;
+    });
+  }
+
+  // List of the main pages in your app
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomeContent(),
+      CreateProjectPage(
+        onProjectCreated: _goToHome,
+        onCancel: _goToHome,
+      ), // <-- Pass the callback here
+      const SearchPage(),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: Color(0xFF1B1B1B),
-        appBar: AppBar(
-          backgroundColor: Color(0xFF1B1B1B),
-          elevation: 0,
-          leading: IconButton(
-            onPressed: null,
-            icon: const Icon(Icons.menu, color: Colors.white),
+    return Scaffold(
+      body: _pages.elementAt(
+        _selectedIndex,
+      ), // Display the selected page from the list
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color(0xFF1B1B1B),
+        selectedItemColor: const Color(0xFFA32626),
+        unselectedItemColor: Colors.white,
+        type: BottomNavigationBarType.fixed, // Important for dark backgrounds
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_outline),
+            label: 'Create',
           ),
-          title: Image.asset('lib/images/logo.png', height: 100, width: 100),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.white),
-              onPressed: () {},
-            ),
-          ],
-          bottom: const TabBar(
-            indicatorColor: Color(0xFFA32626),
-            indicatorWeight: 3.0,
-            labelColor: Colors.white,
-            tabs: [
-              Tab(text: 'Professionals'),
-              Tab(text: 'Projects'),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            //Professionals tab
-            ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return ProfessionalCard();
-              },
-            ),
-
-            //Projects tab
-            ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return ProjectCard();
-              },
-            ),
-          ],
-        ),
-        // Bottom Navigation Bar
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Color(0xFF1B1B1B),
-          selectedItemColor: Color(0xFFA32626),
-          unselectedItemColor: Colors.white,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Create'),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          ],
-          currentIndex: 0,
-          onTap: (index) {
-            // Handle navigation logic here
-          },
-        ),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+        ],
+        currentIndex: _selectedIndex, // Use the state variable
+        onTap: _onItemTapped, // Call the update method
       ),
     );
   }

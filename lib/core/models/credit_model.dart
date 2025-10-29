@@ -5,16 +5,20 @@ class CreditModel {
   final String userId;
   final String projectId;
   final String projectTitle;
+  final String userFullName;
   final String role;
   final bool isVerified;
+  final int year;
 
   CreditModel({
     required this.id,
     required this.userId,
     required this.projectId,
     required this.projectTitle,
+    required this.userFullName,
     required this.role,
     required this.isVerified,
+    required this.year,
   });
 
   // Factory constructor to create a CreditModel from Firestore document
@@ -26,8 +30,10 @@ class CreditModel {
       userId: data['userId'] ?? '',
       projectId: data['projectId'] ?? '',
       projectTitle: data['projectTitle'] ?? '',
+      userFullName: data['userFullName'] ?? '',
       role: data['role'] ?? '',
       isVerified: data['isVerified'] ?? false,
+      year: data['year'] ?? 0,
     );
   }
 
@@ -37,8 +43,10 @@ class CreditModel {
       'userId': userId,
       'projectId': projectId,
       'projectTitle': projectTitle,
+      'userFullName': userFullName,
       'role': role,
       'isVerified': isVerified,
+      'year': year,
     };
   }
 }

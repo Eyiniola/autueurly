@@ -6,8 +6,9 @@ class ProjectModel {
   final String projectType;
   final String description;
   final int year;
-  final String posterUrl;
-  
+  final String? posterUrl; // <-- Changed to nullable String?
+  final String createdBy; // <-- Added this field
+  final String status;
 
   ProjectModel({
     required this.id,
@@ -15,8 +16,9 @@ class ProjectModel {
     required this.projectType,
     required this.description,
     required this.year,
-    required this.posterUrl,
-    
+    this.posterUrl,
+    required this.createdBy,
+    required this.status,
   });
 
   // Factory constructor to create a ProjectModel from Firestore document
@@ -28,10 +30,12 @@ class ProjectModel {
       projectType: data['projectType'] ?? '',
       description: data['description'] ?? '',
       year: data['year'] ?? 0,
-      posterUrl: data['posterUrl'] ?? '',
-      
+      posterUrl: data['posterUrl'], // <-- No default needed for nullable
+      createdBy: data['createdBy'] ?? '', // <-- Added this line
+      status: data['status'] ?? 'Development',
     );
   }
+
   // Method to convert ProjectModel to a map for Firestore
   Map<String, dynamic> toJson() {
     return {
@@ -40,7 +44,8 @@ class ProjectModel {
       'description': description,
       'year': year,
       'posterUrl': posterUrl,
-      
+      'createdBy': createdBy, // <-- Added this line
+      'status': status,
     };
   }
 }
