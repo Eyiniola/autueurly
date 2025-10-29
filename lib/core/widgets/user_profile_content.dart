@@ -8,6 +8,9 @@ import 'package:auteurly/core/services/firstore_service.dart';
 import 'package:auteurly/features/profile/project_gallery_page.dart';
 import 'package:auteurly/core/widgets/credit_poster_card.dart';
 import 'package:auteurly/core/widgets/gallery_thumbnail_widget.dart';
+import 'package:auteurly/core/widgets/image_viewer_page.dart';
+import 'package:auteurly/core/widgets/video_player_page.dart';
+import 'package:auteurly/core/widgets/pdf_viewer_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:io';
@@ -78,6 +81,86 @@ class _UserProfileContentState extends State<UserProfileContent> {
           ),
         );
       }
+    }
+  }
+
+  // --- Gallery Item Opening Methods ---
+  void _openImageViewer(String imageUrl, String? description) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            ImageViewerPage(imageUrl: imageUrl, description: description),
+      ),
+    );
+  }
+
+  void _openVideoPlayer(String videoUrl, String? description) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            VideoPlayerPage(videoUrl: videoUrl, description: description),
+      ),
+    );
+  }
+
+  void _openPdfViewer(String pdfUrl, String? description) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PdfViewerPage(pdfUrl: pdfUrl, description: description),
+      ),
+    );
+  }
+
+  Future<void> _launchExternalUrl(String urlString) async {
+    final uri = Uri.parse(urlString);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not open file/link'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // --- Main method to handle gallery item opening ---
+  void _openGalleryItem(Map<String, dynamic> item) {
+    final String type = item['type'] ?? 'other';
+    final String url = item['storageUrl'] ?? '';
+    final String description = item['description'] ?? '';
+
+    if (url.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Invalid file URL'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    switch (type) {
+      case 'image':
+        _openImageViewer(url, description.isNotEmpty ? description : null);
+        break;
+      case 'video':
+        _openVideoPlayer(url, description.isNotEmpty ? description : null);
+        break;
+      case 'pdf':
+        // Try to open in PDF viewer, fallback to external launch
+        _openPdfViewer(url, description.isNotEmpty ? description : null);
+        break;
+      default:
+        // For 'other' types, launch externally
+        _launchExternalUrl(url);
+        break;
     }
   }
 
@@ -505,8 +588,7 @@ class _UserProfileContentState extends State<UserProfileContent> {
                       return GalleryThumbnailWidget(
                         item: widget.user.projectGallery[index],
                         onTap: () {
-                          // TODO: Implement logic to open the item
-                          print("Tapped on gallery item: ${widget.user.projectGallery[index]['storageUrl']}");
+                          _openGalleryItem(widget.user.projectGallery[index]);
                         },
                       );
                     },
@@ -643,8 +725,7 @@ class _UserProfileContentState extends State<UserProfileContent> {
 
     return GestureDetector(
       onTap: () {
-        // TODO: Implement logic to open the item (image viewer, video player, etc.)
-        print("Tapped on gallery item: $url (Type: $type)");
+        _openGalleryItem(item);
       },
       child: Card(
         clipBehavior: Clip.antiAlias, // Clip the content (Image, etc.)
