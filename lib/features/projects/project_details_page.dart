@@ -21,7 +21,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
   String? _currentUserFullName;
   String? _currentUserProfilePic;
   bool _isAlreadyCredited = false;
-  bool _isCreator = false;
+  final bool _isCreator = false;
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
   // Fetch current user's name (and optional pic)
   Future<void> _fetchCurrentUserData() async {
     if (_currentUserId != null) {
-      final userModel = await _firestoreService.getUserProfile(_currentUserId!);
+      final userModel = await _firestoreService.getUserProfile(_currentUserId);
       if (mounted && userModel != null) {
         setState(() {
           _currentUserFullName = userModel.fullName;
@@ -129,7 +129,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
         projectId: project.id,
         projectTitle: project.title,
         projectCreatorId: project.createdBy,
-        requestingUserId: _currentUserId!,
+        requestingUserId: _currentUserId,
         requestingUserName: _currentUserFullName!,
         requestingUserProfilePic: _currentUserProfilePic, // Pass optional pic
         requestedRole: requestedRole,

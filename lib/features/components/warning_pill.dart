@@ -5,10 +5,10 @@ class WarningPill extends StatelessWidget {
   final VoidCallback onDismissed;
 
   const WarningPill({
-    Key? key,
+    super.key,
     required this.message,
     required this.onDismissed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

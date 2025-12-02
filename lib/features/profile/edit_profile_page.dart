@@ -41,7 +41,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   double? _uploadProgress;
 
   List<Map<String, dynamic>> _projectGalleryItems = [];
-  List<GalleryUpload> _ongoingUploads = [];
+  final List<GalleryUpload> _ongoingUploads = [];
 
   // Controllers and Lists for all editable fields
   late TextEditingController _headlineController;
@@ -371,11 +371,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _uploadTask = uploadTask;
         }); // Show progress
         uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-          if (mounted)
+          if (mounted) {
             setState(
               () => _uploadProgress =
                   snapshot.bytesTransferred / snapshot.totalBytes,
             );
+          }
         });
         TaskSnapshot snapshot = await uploadTask;
         finalShowreelUrl = await snapshot.ref.getDownloadURL();
@@ -449,7 +450,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return "Invalid path";
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -584,7 +584,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           onDelete: () => _deleteGalleryItem(index),
                           onDescriptionChanged: (description) {
                             if (index < _projectGalleryItems.length) {
-                              _projectGalleryItems[index]['description'] = description;
+                              _projectGalleryItems[index]['description'] =
+                                  description;
                             }
                           },
                           isEnabled: !_isSaving,
@@ -595,38 +596,47 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   if (_ongoingUploads.isNotEmpty)
                     Column(
                       children: _ongoingUploads
-                          .map((upload) => UploadingItemWidget(
-                                upload: upload,
-                                onCancel: () async {
-                                  try {
-                                    TaskState currentState = upload.task.snapshot.state;
-                                    if (currentState == TaskState.running ||
-                                        currentState == TaskState.paused) {
-                                      await upload.task.cancel();
-                                      if (mounted) {
-                                        setState(() => _ongoingUploads.removeWhere(
-                                              (up) => up.tempId == upload.tempId,
-                                            ));
-                                      }
-                                    } else {
-                                      if (mounted) {
-                                        setState(() => _ongoingUploads.removeWhere(
-                                              (up) => up.tempId == upload.tempId,
-                                            ));
-                                      }
-                                    }
-                                  } catch (e) {
+                          .map(
+                            (upload) => UploadingItemWidget(
+                              upload: upload,
+                              onCancel: () async {
+                                try {
+                                  TaskState currentState =
+                                      upload.task.snapshot.state;
+                                  if (currentState == TaskState.running ||
+                                      currentState == TaskState.paused) {
+                                    await upload.task.cancel();
                                     if (mounted) {
-                                      setState(() => _ongoingUploads.removeWhere(
-                                            (up) => up.tempId == upload.tempId,
-                                          ));
+                                      setState(
+                                        () => _ongoingUploads.removeWhere(
+                                          (up) => up.tempId == upload.tempId,
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    if (mounted) {
+                                      setState(
+                                        () => _ongoingUploads.removeWhere(
+                                          (up) => up.tempId == upload.tempId,
+                                        ),
+                                      );
                                     }
                                   }
-                                },
-                                onDescriptionChanged: (description) {
-                                  // Description is handled by the upload's controller
-                                },
-                              ))
+                                } catch (e) {
+                                  if (mounted) {
+                                    setState(
+                                      () => _ongoingUploads.removeWhere(
+                                        (up) => up.tempId == upload.tempId,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              onDescriptionChanged: (description) {
+                                // Description is handled by the upload's controller
+                              },
+                            ),
+                          )
                           .toList(),
                     ),
                   // Add Item Button

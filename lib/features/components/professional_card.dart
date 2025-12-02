@@ -9,225 +9,143 @@ class ProfessionalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine availability chip color and text
-    final bool isAvailable =
-        user.availabilityStatus.toLowerCase() == 'available';
-    final Color availabilityColor = isAvailable
-        ? Colors.greenAccent.shade700
-        : Colors.orangeAccent.shade700;
-    final String availabilityText = user.availabilityStatus.isNotEmpty
-        ? user.availabilityStatus.toUpperCase()
-        : 'UNKNOWN';
+    final isAvailable = user.availabilityStatus.toLowerCase() == 'available';
+    final availabilityColor = isAvailable ? Colors.green : Colors.orange;
 
-    // Placeholder image URL
-    const String placeholderImageUrl =
-        'https://i.imgur.com/8h3jS8S.jpeg'; // Replace with your actual placeholder if different
+    // Get the first 3 skills to display on the card
+    final displaySkills = user.skills.take(3).toList();
 
-    return Card(
-      color: const Color(0xFF2C2C2C), // Dark card background
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.only(bottom: 20),
-      clipBehavior: Clip.antiAlias, // Ensures content respects rounded corners
-      child: InkWell(
-        // Make the whole card tappable
-        onTap: () {
-          // Navigate to the PublicProfilePage
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PublicProfilePage(userId: user.uid),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PublicProfilePage(userId: user.uid),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 5,
+              offset: const Offset(0, 3),
             ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            // Use Column for overall structure (Top Row, Bottom Row)
+          ],
+        ),
+        child: AspectRatio(
+          aspectRatio: 3 / 4,
+          child: Stack(
+            fit: StackFit.expand,
             children: [
-              // --- Top Row: Profile Pic + Info ---
-              Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Align items to the top
-                children: [
-                  // --- Left: Profile Picture ---
-                  CircleAvatar(
-                    radius: 35, // Adjust size as needed
-                    backgroundColor:
-                        Colors.grey[800], // Background for error/loading
-                    backgroundImage: NetworkImage(
-                      user.profilePictureUrl ?? placeholderImageUrl,
-                    ),
-                    onBackgroundImageError: (exception, stackTrace) {
-                      // Optional: Log error or handle it
-                      print("Error loading image: $exception");
-                    },
-                    child: user.profilePictureUrl == null
-                        ? const Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 35,
-                          ) // Fallback icon
-                        : null,
-                  ),
-                  const SizedBox(width: 16), // Spacing
-                  // --- Right: User Info ---
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Full Name
-                        Text(
-                          user.fullName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18, // Slightly larger name
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        // Headline
-                        Text(
-                          user.headline,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 13,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 12),
-                        // Skills (or Bio)
-                        if (user.skills.isNotEmpty)
-                          Wrap(
-                            spacing: 6.0, // Spacing between chips
-                            runSpacing: 4.0, // Spacing between lines of chips
-                            children: user.skills
-                                .take(3) // Limit to first 3 skills, for example
-                                .map(
-                                  (skill) => Chip(
-                                    label: Text(skill),
-                                    backgroundColor:
-                                        Colors.grey[800], // Darker chip
-                                    labelStyle: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 10,
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 0,
-                                    ), // Compact padding
-                                    materialTapTargetSize: MaterialTapTargetSize
-                                        .shrinkWrap, // Reduce tap area
-                                    side: BorderSide.none,
-                                  ),
-                                )
-                                .toList(),
-                          )
-                        // --- ALTERNATIVE: Show Bio instead of Skills ---
-                        else if (user.bio.isNotEmpty)
-                          Text(
-                            user.bio,
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 12,
-                            ),
-                            maxLines: 2, // Limit bio lines
-                            overflow: TextOverflow.ellipsis,
-                          )
-                        else // Fallback if no skills (or bio)
-                          SizedBox(
-                            height: 20,
-                          ), // Placeholder for consistent height
-                      ],
-                    ),
-                  ),
-                ],
+              // --- Layer 1: Background Image (Profile Picture) ---
+              Image.network(
+                user.profilePictureUrl ??
+                    'https://placehold.co/300x400/2C2C2C/FFFFFF?text=AUTEURLY',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    Container(color: const Color(0xFF2C2C2C)),
               ),
-              const SizedBox(height: 16), // Space between top and bottom rows
-              // --- Bottom Row: Availability + View Button ---
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Availability Indicator
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: availabilityColor.withOpacity(
-                        0.15,
-                      ), // Softer background
-                      borderRadius: BorderRadius.circular(10), // Pill shape
-                      border: Border.all(
-                        color: availabilityColor.withOpacity(0.5),
-                        width: 0.5,
-                      ), // Subtle border
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.circle,
-                          color: availabilityColor,
-                          size: 8,
-                        ), // Small dot indicator
-                        const SizedBox(width: 4),
-                        Text(
-                          availabilityText,
-                          style: TextStyle(
-                            color: availabilityColor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
 
-                  // View Button
-                  TextButton(
-                    // Use TextButton for a less prominent look
-                    onPressed: () {
-                      // Navigate to the PublicProfilePage
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PublicProfilePage(userId: user.uid),
+              // --- Layer 2: Darkening Gradient Overlay ---
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.1),
+                      Colors.black.withOpacity(0.8),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+
+              // --- Layer 3: Text Content ---
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- NEW: Display Skills as Chips ---
+                    if (displaySkills.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Wrap(
+                          spacing: 4.0,
+                          runSpacing: 4.0,
+                          children: displaySkills
+                              .map(
+                                (skill) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(
+                                      0.2,
+                                    ), // Light, semi-transparent chip background
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    skill.toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ), // Smaller padding
-                      foregroundColor: Colors.grey[300], // Subtle text color
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color: Colors.grey[700]!,
-                          width: 0.5,
-                        ), // Subtle border
+                      ),
+
+                    // Availability Chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: availabilityColor.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        user.availabilityStatus.toUpperCase(),
+                        style: TextStyle(
+                          color: availabilityColor,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('View Profile', style: TextStyle(fontSize: 12)),
-                        SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 10,
-                          color: Colors.grey[500],
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+
+                    // Name
+                    Text(
+                      user.fullName.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+
+                    // Headline
+                    Text(
+                      user.headline.isNotEmpty ? user.headline : 'Professional',
+                      style: TextStyle(color: Colors.grey[300], fontSize: 12),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

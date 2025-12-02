@@ -77,7 +77,7 @@ class _ShowreelEditorState extends State<ShowreelEditor> {
         _currentShowreelUrl = null; // Clear current URL display during upload
         widget.onUrlChanged(null); // Notify parent URL is temporarily invalid
         _uploadTask = widget.storageService.uploadShowreelVideo(
-          _userId!,
+          _userId,
           videoFile,
         );
       });
@@ -334,6 +334,7 @@ class _ShowreelEditorState extends State<ShowreelEditor> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
+                    onPressed: _cancelCurrentUpload,
                     child: Text(
                       "Cancel Upload",
                       style: TextStyle(
@@ -341,7 +342,6 @@ class _ShowreelEditorState extends State<ShowreelEditor> {
                         fontSize: 12,
                       ),
                     ),
-                    onPressed: _cancelCurrentUpload,
                   ),
                 ),
             ],

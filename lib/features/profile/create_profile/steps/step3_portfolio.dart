@@ -47,7 +47,7 @@ class _Step3PortfolioState extends State<Step3Portfolio> {
   UploadTask? _uploadTask;
   double? _uploadProgress;
   String? _currentShowreelUrl; // Local state to track URL
-  bool _isUploading = false;
+  final bool _isUploading = false;
 
   // Assume StorageService and AuthService are accessible
   // You might need to get these via Provider or pass them in
@@ -59,7 +59,6 @@ class _Step3PortfolioState extends State<Step3Portfolio> {
     super.initState();
     _currentShowreelUrl = widget.initialShowreelUrl;
   }
-
 
   @override
   Widget build(BuildContext context) {

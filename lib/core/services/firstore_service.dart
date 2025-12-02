@@ -4,7 +4,6 @@ import 'package:auteurly/core/models/project_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
-//import 'package:auteurly/core/models/project_model.dart';
 import '../models/credit_model.dart';
 
 class NewCredit {
@@ -89,6 +88,15 @@ class FirestoreService {
     return _db.collection('users').doc(userId).snapshots();
   }
 
+  Future<String?> getUserFullName(String userId) async {
+    final doc = await _db.collection('users').doc(userId).get();
+    if (doc.exists) {
+      // Assuming 'fullName' is the correct field name in your UserModel/Firestore
+      return doc.data()?['fullName'] as String?;
+    }
+    return null;
+  }
+
   // Update user profile
   Future<void> updateUserProfile(
     String userId,
@@ -102,6 +110,7 @@ class FirestoreService {
   Future<void> addProjectWithCredit({
     required String projectId,
     required String title,
+    required String creatorFullName,
     required String description,
     required String projectType,
     required int year,
@@ -133,6 +142,7 @@ class FirestoreService {
         'userId': credit.userId,
         'projectId': projectId,
         'userFullName': credit.userFullName,
+        'creatorName': creatorFullName,
         'projectTitle': title,
         'role': credit.role,
         'isVerified': isCreator ? true : false,
@@ -398,7 +408,7 @@ class FirestoreService {
         .map((snapshot) {
           // 2. Manually filter the list in Dart (just like ChatModel does)
           final unreadDocs = snapshot.docs.where((doc) {
-            final data = doc.data() as Map<String, dynamic>;
+            final data = doc.data();
 
             // Check if 'lastMessageSeenBy' field exists and is a List
             if (data['lastMessageSeenBy'] is List) {

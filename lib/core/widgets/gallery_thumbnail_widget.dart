@@ -1,15 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 class GalleryThumbnailWidget extends StatelessWidget {
   final Map<String, dynamic> item;
   final VoidCallback? onTap;
 
-  const GalleryThumbnailWidget({
-    super.key,
-    required this.item,
-    this.onTap,
-  });
+  const GalleryThumbnailWidget({super.key, required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {

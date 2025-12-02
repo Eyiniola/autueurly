@@ -20,13 +20,13 @@ class PushNotificationService {
 
     // 3. Save the token to Firestore
     if (token != null && _currentUserId != null) {
-      await _saveTokenToFirestore(token, _currentUserId!);
+      await _saveTokenToFirestore(token, _currentUserId);
     }
 
     // 4. Listen for token refreshes
     _fcm.onTokenRefresh.listen((newToken) {
       if (_currentUserId != null) {
-        _saveTokenToFirestore(newToken, _currentUserId!);
+        _saveTokenToFirestore(newToken, _currentUserId);
       }
     });
 

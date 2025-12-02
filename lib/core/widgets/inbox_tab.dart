@@ -8,10 +8,10 @@ class InboxTab extends StatefulWidget {
   final FirestoreService firestoreService;
 
   const InboxTab({
-    Key? key,
+    super.key,
     required this.currentUserId,
     required this.firestoreService,
-  }) : super(key: key);
+  });
 
   @override
   State<InboxTab> createState() => _InboxTabState();

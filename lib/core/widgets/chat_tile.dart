@@ -8,7 +8,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 class ChatTile extends StatefulWidget {
   final ChatModel chat;
-  const ChatTile({Key? key, required this.chat}) : super(key: key);
+  const ChatTile({super.key, required this.chat});
 
   @override
   State<ChatTile> createState() => _ChatTileState();
@@ -139,7 +139,7 @@ class _ChatTileState extends State<ChatTile> {
             // (You already mark on 'ConversationScreen' load, but this
             // can also be done here just before navigating)
             if (isUnread && _currentUserId != null) {
-              _firestoreService.markChatAsRead(widget.chat.id, _currentUserId!);
+              _firestoreService.markChatAsRead(widget.chat.id, _currentUserId);
             }
             // ---
 

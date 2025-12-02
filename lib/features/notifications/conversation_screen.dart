@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:auteurly/core/models/user_model.dart';
 import 'package:auteurly/core/models/message_model.dart';
 import 'package:auteurly/core/services/firstore_service.dart';
+import 'package:auteurly/features/profile/public_profile_page.dart'; // Import the target page
 import 'package:timeago/timeago.dart' as timeago;
 
 class ConversationScreen extends StatefulWidget {
@@ -52,56 +53,74 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
+  // --- NEW: Navigation function to the other user's profile ---
+  void _viewOtherUserProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        // Navigate to the PublicProfilePage using the other user's UID
+        builder: (context) => PublicProfilePage(userId: widget.otherUser.uid),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1B1B1B),
       appBar: AppBar(
         backgroundColor: const Color(0xFF2C2C2C),
-        iconTheme: IconThemeData(color: Colors.white),
-        title: StreamBuilder<UserModel?>(
-          stream: _firestoreService
-              .getUserProfileStream(widget.otherUser.uid)
-              .map((doc) => UserModel.fromFirestore(doc)),
-          builder: (context, snapshot) {
-            final user =
-                snapshot.data ??
-                widget.otherUser; // Use initial data until stream updates
-            final isOnline = user.status == 'online';
+        iconTheme: const IconThemeData(color: Colors.white),
+        // --- FIX: Wrap the StreamBuilder (the title content) in a GestureDetector ---
+        title: GestureDetector(
+          onTap: _viewOtherUserProfile, // Add the tap handler
+          child: StreamBuilder<UserModel?>(
+            stream: _firestoreService
+                .getUserProfileStream(widget.otherUser.uid)
+                .map((doc) => UserModel.fromFirestore(doc)),
+            builder: (context, snapshot) {
+              final user =
+                  snapshot.data ??
+                  widget.otherUser; // Use initial data until stream updates
+              final isOnline = user.status == 'online';
 
-            return Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: user.profilePictureUrl != null
-                      ? NetworkImage(user.profilePictureUrl!)
-                      : null,
-                  child: user.profilePictureUrl == null
-                      ? const Icon(Icons.person)
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(user.fullName, style: const TextStyle(color: Colors.white)),
-                    if (isOnline)
-                      const Text(
-                        'Online',
-                        style: TextStyle(color: Colors.green, fontSize: 12),
-                      )
-                    else
+              return Row(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: user.profilePictureUrl != null
+                        ? NetworkImage(user.profilePictureUrl!)
+                        : null,
+                    child: user.profilePictureUrl == null
+                        ? const Icon(Icons.person)
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        'Last seen ${timeago.format(user.lastSeen.toDate())}',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
+                        user.fullName,
+                        style: const TextStyle(color: Colors.white),
                       ),
-                  ],
-                ),
-              ],
-            );
-          },
+                      if (isOnline)
+                        const Text(
+                          'Online',
+                          style: TextStyle(color: Colors.green, fontSize: 12),
+                        )
+                      else
+                        Text(
+                          'Last seen ${timeago.format(user.lastSeen.toDate())}',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
       body: Column(
@@ -135,5 +154,4 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ),
     );
   }
-
 }

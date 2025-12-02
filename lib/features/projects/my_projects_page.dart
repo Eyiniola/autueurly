@@ -34,7 +34,7 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
             )
           : StreamBuilder<List<ProjectModel>>(
               stream: _firestoreService.getProjectsCreatedByUser(
-                _currentUserId!, // <-- Use the '!' operator for null safety
+                _currentUserId, // <-- Use the '!' operator for null safety
               ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {

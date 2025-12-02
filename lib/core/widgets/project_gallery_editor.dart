@@ -33,7 +33,7 @@ class ProjectGalleryEditor extends StatefulWidget {
 
 class _ProjectGalleryEditorState extends State<ProjectGalleryEditor> {
   List<Map<String, dynamic>> _projectGalleryItems = []; // Local state
-  List<GalleryUpload> _ongoingUploads = [];
+  final List<GalleryUpload> _ongoingUploads = [];
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
 
   @override
@@ -73,7 +73,7 @@ class _ProjectGalleryEditorState extends State<ProjectGalleryEditor> {
       File file = File(result.files.single.path!);
       String tempId = DateTime.now().millisecondsSinceEpoch.toString();
       UploadTask uploadTask = widget.storageService.uploadGalleryItem(
-        _userId!,
+        _userId,
         file,
       );
 
@@ -119,9 +119,9 @@ class _ProjectGalleryEditorState extends State<ProjectGalleryEditor> {
                 .toLowerCase()
                 .substring(1);
             String type = 'other';
-            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(fileExtension))
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(fileExtension)) {
               type = 'image';
-            else if ([
+            } else if ([
               'mp4',
               'mov',
               'avi',
@@ -167,8 +167,9 @@ class _ProjectGalleryEditorState extends State<ProjectGalleryEditor> {
                 final index = _ongoingUploads.indexWhere(
                   (up) => up.tempId == tempId,
                 );
-                if (index != -1)
+                if (index != -1) {
                   _ongoingUploads[index].error = "Processing failed";
+                }
               });
               _showError("Processing failed for ${_getFileName(file.path)}");
             }

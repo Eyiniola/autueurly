@@ -10,7 +10,7 @@ import 'package:auteurly/core/services/firstore_service.dart';
 import 'package:auteurly/core/models/notification_model.dart';
 
 class InboxScreen extends StatefulWidget {
-  const InboxScreen({Key? key}) : super(key: key);
+  const InboxScreen({super.key});
 
   @override
   State<InboxScreen> createState() => _InboxScreenState();

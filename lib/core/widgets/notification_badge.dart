@@ -8,11 +8,11 @@ class NotificationBadge extends StatefulWidget {
   final Widget child; // This will be your bell icon
 
   const NotificationBadge({
-    Key? key,
+    super.key,
     required this.currentUserId,
     required this.firestoreService,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   State<NotificationBadge> createState() => _NotificationBadgeState();

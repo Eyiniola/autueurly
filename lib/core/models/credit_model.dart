@@ -6,6 +6,7 @@ class CreditModel {
   final String projectId;
   final String projectTitle;
   final String userFullName;
+  final String creatorName;
   final String role;
   final bool isVerified;
   final int year;
@@ -16,6 +17,7 @@ class CreditModel {
     required this.projectId,
     required this.projectTitle,
     required this.userFullName,
+    required this.creatorName,
     required this.role,
     required this.isVerified,
     required this.year,
@@ -31,6 +33,7 @@ class CreditModel {
       projectId: data['projectId'] ?? '',
       projectTitle: data['projectTitle'] ?? '',
       userFullName: data['userFullName'] ?? '',
+      creatorName: data['creatorName'] ?? '',
       role: data['role'] ?? '',
       isVerified: data['isVerified'] ?? false,
       year: data['year'] ?? 0,
@@ -44,6 +47,7 @@ class CreditModel {
       'projectId': projectId,
       'projectTitle': projectTitle,
       'userFullName': userFullName,
+      'creatorName': creatorName,
       'role': role,
       'isVerified': isVerified,
       'year': year,

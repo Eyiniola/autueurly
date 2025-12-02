@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:auteurly/core/services/storage_service.dart';
 import 'package:path/path.dart' as p;
 
 class GalleryItemWidget extends StatelessWidget {
@@ -61,7 +60,11 @@ class GalleryItemWidget extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+            icon: const Icon(
+              Icons.delete_outline,
+              color: Colors.redAccent,
+              size: 20,
+            ),
             onPressed: isEnabled ? onDelete : null,
             tooltip: "Remove Item",
             padding: EdgeInsets.zero,

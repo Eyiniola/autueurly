@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ProfilePicturePicker extends StatelessWidget {
   final File? selectedImage;
@@ -37,16 +36,9 @@ class ProfilePicturePicker extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: const Color(0xFF1B1B1B),
-                  width: 2,
-                ),
+                border: Border.all(color: const Color(0xFF1B1B1B), width: 2),
               ),
-              child: const Icon(
-                Icons.edit,
-                color: Colors.white,
-                size: 18,
-              ),
+              child: const Icon(Icons.edit, color: Colors.white, size: 18),
             ),
         ],
       ),
@@ -64,11 +56,7 @@ class ProfilePicturePicker extends StatelessWidget {
 
   Widget? _getChild() {
     if (selectedImage == null && existingImageUrl == null) {
-      return Icon(
-        Icons.person,
-        size: radius,
-        color: Colors.grey,
-      );
+      return Icon(Icons.person, size: radius, color: Colors.grey);
     }
     return null;
   }

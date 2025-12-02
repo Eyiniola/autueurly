@@ -1,9 +1,9 @@
-import 'package:auteurly/features/profile/create_profile/create_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:auteurly/core/services/auth_service.dart';
-import 'package:auteurly/core/services/firstore_service.dart'; // Corrected import
+import 'package:auteurly/core/services/firstore_service.dart';
+import 'package:auteurly/features/profile/create_profile/create_profile.dart';
 import 'package:auteurly/features/auth/login_page.dart';
 import 'package:auteurly/home_page.dart';
 
@@ -30,7 +30,6 @@ class AuthWrapper extends StatelessWidget {
           final user = authSnapshot.data!;
 
           return StreamBuilder<DocumentSnapshot>(
-            // **CHANGE 2: Call the new stream method**
             stream: firestoreService.getUserProfileStream(user.uid),
             builder: (context, profileSnapshot) {
               if (profileSnapshot.connectionState == ConnectionState.waiting) {
@@ -39,19 +38,25 @@ class AuthWrapper extends StatelessWidget {
                 );
               }
 
-              // **CHANGE 3: Check for the flag**
-              // The logic here is the same, but it now runs on every data change
-              if (profileSnapshot.hasData &&
-                  (profileSnapshot.data!.data()
-                          as Map<String, dynamic>)['isProfileComplete'] ==
-                      true) {
-                return HomePage();
+              // Robust check for profile completion
+              if (profileSnapshot.hasData && profileSnapshot.data!.exists) {
+                final data =
+                    profileSnapshot.data!.data() as Map<String, dynamic>;
+
+                if (data.containsKey('isProfileComplete') &&
+                    data['isProfileComplete'] == true) {
+                  return const HomePage();
+                } else {
+                  return const CreateProfilePage();
+                }
               } else {
+                // If profile document doesn't exist yet
                 return const CreateProfilePage();
               }
             },
           );
         } else {
+          // If user is not logged in
           return LoginPage();
         }
       },

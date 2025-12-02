@@ -284,7 +284,7 @@ class _EditProjectPageState extends State<EditProjectPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _projectType,
+                    initialValue: _projectType,
                     items:
                         [
                               'Short Film',
@@ -295,8 +295,8 @@ class _EditProjectPageState extends State<EditProjectPage> {
                             ]
                             .map(
                               (label) => DropdownMenuItem(
-                                child: Text(label),
                                 value: label,
+                                child: Text(label),
                               ),
                             )
                             .toList(),
@@ -357,7 +357,7 @@ class _EditProjectPageState extends State<EditProjectPage> {
                   const SizedBox(height: 16),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _selectedStatus,
+                    initialValue: _selectedStatus,
                     items: _projectStatuses.map((String status) {
                       return DropdownMenuItem<String>(
                         value: status,

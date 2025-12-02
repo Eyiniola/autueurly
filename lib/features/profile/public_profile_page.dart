@@ -72,7 +72,7 @@ class _PublicProfilePageState extends State<PublicProfilePage>
                   if (_currentUserId != null) {
                     // 1. Get or create the chat room
                     final chatId = await _firestoreService.getOrCreateChat(
-                      _currentUserId!,
+                      _currentUserId,
                       user.uid,
                       user.fullName,
                     );

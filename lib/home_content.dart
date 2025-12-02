@@ -101,8 +101,17 @@ class _HomeContentState extends State<HomeContent> {
                         );
                       }
                       final users = snapshot.data!;
-                      return ListView.builder(
-                        padding: const EdgeInsets.all(16.0),
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(10.0),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount:
+                                  2, // <-- This creates the two-column layout
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio:
+                                  0.75, // <-- Matches the 3/4 aspect ratio of the card
+                            ),
                         itemCount: users.length,
                         itemBuilder: (context, index) {
                           final user = users[index];

@@ -103,7 +103,7 @@ class _NotificationTileState extends State<NotificationTile> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Display sender info if available (for join requests)
-            if (isJoinRequest && widget.notification.senderName != null)
+            if (isJoinRequest)
               Row(
                 children: [
                   // display profile pic
@@ -120,7 +120,7 @@ class _NotificationTileState extends State<NotificationTile> {
 
                   Expanded(
                     child: Text(
-                      widget.notification.senderName!,
+                      widget.notification.senderName,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -129,8 +129,7 @@ class _NotificationTileState extends State<NotificationTile> {
                   ),
                 ],
               ),
-            if (isJoinRequest && widget.notification.senderName != null)
-              const SizedBox(height: 8),
+            if (isJoinRequest) const SizedBox(height: 8),
 
             // Display the main message
             Text(

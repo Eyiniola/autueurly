@@ -136,13 +136,17 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
     setState(() {
       _isSaving = true;
     });
+    final creatorFullName = await _firestoreService.getUserFullName(user.uid);
 
+    // Fallback to a generic description if the name still isn't found
+    final finalUserFullName = creatorFullName ?? 'Unknown Creator';
+
+    // 2. Prepare the creator credit with the verified name
     final creatorCredit = NewCredit(
       userId: user.uid,
-      userFullName: user.displayName ?? user.email ?? '',
+      userFullName: finalUserFullName, // Use the verified name
       role: _roleController.text,
     );
-
     final allCredits = [creatorCredit, ..._addedCrew];
 
     try {
@@ -168,6 +172,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
         posterUrl: posterUrl,
         createdBy: user.uid,
         credits: allCredits,
+        creatorFullName: '',
       );
 
       widget.onProjectCreated(); // Go back on success
@@ -259,7 +264,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                   const SizedBox(height: 16),
                   // --- Project Type Dropdown ---
                   DropdownButtonFormField<String>(
-                    value: _projectType,
+                    initialValue: _projectType,
                     items:
                         [
                               'Short Film',
@@ -270,8 +275,8 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                             ]
                             .map(
                               (label) => DropdownMenuItem(
-                                child: Text(label),
                                 value: label,
+                                child: Text(label),
                               ),
                             )
                             .toList(),
