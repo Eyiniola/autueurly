@@ -97,6 +97,9 @@ export const onUserUpdated = onDocumentUpdated("users/{userId}", async (event) =
     fullName: newData.fullName,
     skills: newData.skills,
     genres: newData.genres,
+    headline: newData.headline,
+    location: newData.location,
+    keyRoles: newData.keyRoles,
   };
   try {
     await userIndex.saveObject(objectToSave);
@@ -158,21 +161,101 @@ export const onProjectDeleted = onDocumentDeleted("projects/{projectId}", async 
 // --- NOTIFICATION TRIGGERS (v2) ---
 
 
+// Assume the necessary imports and firestore initialization are present
+
 export const onCreditAdded = onDocumentCreated("credits/{creditId}", async (event) => {
-  if (!event.data) return;
+  if (!event.data) {
+    logger.warn("No data found in credit document snapshot. Aborting.");
+    return;
+  }
+
   const credit = event.data.data();
+  const creditId = event.data.id;
+
+  // 1. Read the Project Document (Crucial Check)
+  const projectDoc = await firestore.doc(`projects/${credit.projectId}`).get();
+
+  // Defensive Check 1: Ensure the Project document exists
+  if (!projectDoc.exists) {
+    logger.error(`Project document ${credit.projectId} not found. Cannot proceed with notification.`);
+    return;
+  }
+  const project = projectDoc.data();
+
+  // Defensive Check 2: Ensure the data is not null (TS safety)
+  if (!project) {
+    logger.error(`Project data for ID ${credit.projectId} is empty. Aborting notification.`);
+    return;
+  }
+
+  // 2. CORE SECURITY CHECK: Skip notification if recipient is the creator
+  if (credit.userId === project.createdBy) {
+    logger.info(`Credit recipient is the project creator (${credit.userId}). Skipping notification.`);
+    return;
+  }
+
+  // 3. Use creatorName from credit doc (denormalized data is assumed correct)
+  const creatorName = credit.creatorName || "A Project Manager";
+
+  // 4. Read the Recipient's User Document (for FCM Token)
+  const userDoc = await firestore.doc(`users/${credit.userId}`).get();
+
+  // Defensive Check 3: Ensure the Recipient exists before proceeding
+  if (!userDoc.exists) {
+    logger.error(`Recipient user document ${credit.userId} not found. Cannot send notification.`);
+    return;
+  }
+
+  const fcmToken = userDoc.data()?.fcmToken;
+
+  // 5. Final Notification Logic
+
+  // Construct the message once
+  const notificationMessage = `${creatorName} added you as '${credit.role}' on '${credit.projectTitle}'`;
+
+  // 5a. Save the notification document to Firestore (for the 'Others' tab)
   const notification = {
     recipientId: credit.userId,
-    senderName: credit.userFullName,
+    senderName: creatorName,
     type: "credit_request",
-    message: `${credit.userFullName} added you as '${credit.role}' on '${credit.projectTitle}'`,
-    referenceId: event.data.id,
+    message: notificationMessage,
+    referenceId: creditId,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
     isRead: false,
   };
-
   await firestore.collection("notifications").add(notification);
-  logger.log("Credit notification created in Firestore.");
+  logger.log("Successfully saved notification to Firestore.");
+
+
+  // 5b. Send the push notification (FCM)
+  const payload = {
+    token: fcmToken,
+
+    notification: {
+      title: "New Project Credit Request",
+      body: notificationMessage,
+    },
+
+
+    data: {
+      type: "credit_request",
+      creditId: creditId,
+      projectId: credit.projectId || "", // Ensure it's defined
+      senderId: credit.createdBy || "",
+    },
+
+
+    android: {
+      notification: {
+        channelId: "credit_requests_channel",
+      // You can add more Android-specific settings here
+      },
+    },
+  };
+
+  await admin.messaging().send(payload);
+
+  return null;
 });
 
 export const onNewNotification = onDocumentCreated("notifications/{notificationId}", async (event) => {
@@ -240,7 +323,7 @@ export const onNewChatMessage = onDocumentCreated("chats/{chatId}/messages/{mess
   await sendPushNotification(recipientId, title, body);
 });
 
-// --- 3. Re-usable Helper Function (No changes needed) ---
+// --- 3. Re-usable Helper Function  ---
 async function sendPushNotification(
   recipientId: string,
   title: string,
